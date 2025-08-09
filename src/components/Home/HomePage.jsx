@@ -3,6 +3,12 @@ import InstallInstructions from './InstallInstructions'
 
 const toolGroups = [
   {
+    category: 'Notebook',
+    tools: [
+      { name: 'tool-notebook', path: '/notebook', implemented: true, featured: true }
+    ]
+  },
+  {
     category: 'Formatter',
     tools: [
       { name: 'json', path: '/json', implemented: true },
@@ -49,7 +55,8 @@ const toolGroups = [
     category: 'Time',
     tools: [
       { name: 'timezone', path: '/time/zone', implemented: true },
-      { name: 'epoch', path: '/time/epoch', implemented: true }
+      { name: 'epoch', path: '/time/epoch', implemented: true },
+      { name: 'date', path: '/time/date', implemented: true, featured: true }
     ]
   },
   {
@@ -130,6 +137,41 @@ export default function HomePage() {
         }}>
           $ terminal-inspired developer workbench
         </p>
+        <div style={{
+          marginTop: '1rem',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <Link 
+            to="/notebook"
+            style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '6px',
+              padding: '0.75rem 1.5rem',
+              color: 'var(--text-primary)',
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'var(--bg-primary)'
+              e.target.style.borderColor = 'var(--accent-color, #0066cc)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'var(--bg-secondary)'
+              e.target.style.borderColor = 'var(--border-color)'
+            }}
+          >
+            📓 Switch to Notebook View
+          </Link>
+        </div>
       </div>
 
       <div style={{

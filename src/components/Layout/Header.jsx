@@ -137,6 +137,19 @@ export default function Header({ title = 'work-bench.dev', showBack = false, onB
         <InstallButton />
         <button 
           className="btn btn-secondary"
+          onClick={() => window.location.href = '/notebook'}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem',
+            padding: '0.5rem 1rem',
+            fontSize: '1rem'
+          }}
+        >
+          📓 notebook
+        </button>
+        <button 
+          className="btn btn-secondary"
           onClick={() => setShowNotepad(true)}
           style={{ 
             display: 'flex', 

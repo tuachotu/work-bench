@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getStringLength, cleanupString, escapeString, slugifyString } from '../../../utils/formatters'
 import { copyToClipboard } from '../../../utils/clipboard'
+import SocialShare from '../../Layout/SocialShare'
 
 export default function StringOperations() {
   const [input, setInput] = useState('')
@@ -438,6 +439,24 @@ Detailed Breakdown:
           <button className="btn btn-secondary" onClick={handleClear}>
             🗑️ Clear
           </button>
+          
+          {/* Social Share Buttons - show when there's valid output */}
+          {output && !error && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              paddingLeft: '1rem',
+              marginLeft: '1rem',
+              borderLeft: '1px solid var(--border-color)'
+            }}>
+              <SocialShare 
+                text={`Performed string manipulations using work-bench.dev - a collection of 20+ developer tools! 🔤\n\n📥 INPUT:\n"${input}"\n\n📤 OUTPUT:\n"${output}"`}
+                hashtags={['string', 'developer', 'tools', 'text']}
+                size="small"
+                showLabel={true}
+              />
+            </div>
+          )}
           
           <div style={{
             marginLeft: 'auto',

@@ -1186,3 +1186,264 @@ function parseCsvLine(line, delimiter = ',') {
   result.push(current.trim())
   return result
 }
+
+// Date utility functions
+export function formatDateInAllFormats(dateInput) {
+  if (!dateInput || !dateInput.trim()) {
+    throw new Error('Please enter a date to format.')
+  }
+
+  try {
+    // Try to parse the date
+    const date = new Date(dateInput.trim())
+    
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date format. Please enter a valid date.')
+    }
+
+    // Generate all popular formats
+    const formats = {
+      'ISO 8601': date.toISOString(),
+      'ISO Date': date.toISOString().split('T')[0],
+      'US Format': date.toLocaleDateString('en-US'),
+      'US Long': date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }),
+      'European': date.toLocaleDateString('en-GB'),
+      'European Long': date.toLocaleDateString('en-GB', { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      }),
+      'RFC 2822': date.toString(),
+      'UTC String': date.toUTCString(),
+      'Unix Timestamp': Math.floor(date.getTime() / 1000),
+      'JavaScript Timestamp': date.getTime(),
+      'Year-Month-Day': `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
+      'Month/Day/Year': `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${date.getFullYear()}`,
+      'Day/Month/Year': `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`,
+      'Day-Month-Year': `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`,
+      'Month Day, Year': date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      'Day Month Year': date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+      'Compact': `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`,
+      'Time 12h': date.toLocaleTimeString('en-US', { hour12: true }),
+      'Time 24h': date.toLocaleTimeString('en-GB', { hour12: false }),
+      'Full DateTime': date.toLocaleString('en-US'),
+      'Full DateTime 24h': date.toLocaleString('en-GB', { hour12: false })
+    }
+
+    return {
+      success: true,
+      result: formats,
+      originalDate: date,
+      message: `📅 Date formatted in ${Object.keys(formats).length} popular formats!`
+    }
+  } catch (error) {
+    throw new Error(`Date formatting failed: ${error.message}`)
+  }
+}
+
+export function calculateDateDifference(date1Input, date2Input) {
+  if (!date1Input || !date1Input.trim() || !date2Input || !date2Input.trim()) {
+    throw new Error('Please enter both dates to calculate the difference.')
+  }
+
+  try {
+    // Try to parse dates with better error handling
+    const date1Str = date1Input.trim()
+    const date2Str = date2Input.trim()
+    
+    let date1 = new Date(date1Str)
+    let date2 = new Date(date2Str)
+    
+    // If first parse fails, try some common formats
+    if (isNaN(date1.getTime())) {
+      // Try parsing with different separators
+      const formats = [
+        date1Str.replace(/[\-\/\.]/g, '-'), // normalize separators to dashes
+        date1Str.replace(/[\-\/\.]/g, '/'), // normalize separators to slashes
+      ]
+      
+      for (const format of formats) {
+        date1 = new Date(format)
+        if (!isNaN(date1.getTime())) break
+      }
+    }
+    
+    if (isNaN(date2.getTime())) {
+      // Try parsing with different separators
+      const formats = [
+        date2Str.replace(/[\-\/\.]/g, '-'), // normalize separators to dashes  
+        date2Str.replace(/[\-\/\.]/g, '/'), // normalize separators to slashes
+      ]
+      
+      for (const format of formats) {
+        date2 = new Date(format)
+        if (!isNaN(date2.getTime())) break
+      }
+    }
+    
+    if (isNaN(date1.getTime()) || isNaN(date2.getTime())) {
+      const invalidDates = []
+      if (isNaN(date1.getTime())) invalidDates.push(`"${date1Str}"`)
+      if (isNaN(date2.getTime())) invalidDates.push(`"${date2Str}"`)
+      throw new Error(`Invalid date format: ${invalidDates.join(' and ')}. Please use formats like: 2024-01-01, Jan 1 2024, 1/1/2024`)
+    }
+
+    // Calculate the difference in milliseconds
+    const timeDiff = Math.abs(date2.getTime() - date1.getTime())
+    
+    // Convert to different units
+    const milliseconds = timeDiff
+    const seconds = Math.floor(timeDiff / 1000)
+    const minutes = Math.floor(timeDiff / (1000 * 60))
+    const hours = Math.floor(timeDiff / (1000 * 60 * 60))
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
+    const weeks = Math.floor(days / 7)
+    const months = Math.floor(days / 30.44) // Average month length
+    const years = Math.floor(days / 365.25) // Account for leap years
+
+    // More precise calculations
+    const remainingDaysAfterWeeks = days % 7
+    const remainingHoursAfterDays = hours % 24
+    const remainingMinutesAfterHours = minutes % 60
+    const remainingSecondsAfterMinutes = seconds % 60
+
+    const result = {
+      total: {
+        milliseconds,
+        seconds,
+        minutes,
+        hours,
+        days,
+        weeks,
+        months,
+        years
+      },
+      breakdown: {
+        years: years,
+        months: months % 12,
+        weeks: weeks,
+        days: remainingDaysAfterWeeks,
+        hours: remainingHoursAfterDays,
+        minutes: remainingMinutesAfterHours,
+        seconds: remainingSecondsAfterMinutes
+      },
+      formatted: {
+        'Days between': `${days} days`,
+        'Weeks between': `${weeks} weeks, ${remainingDaysAfterWeeks} days`,
+        'Hours between': `${hours} hours, ${remainingMinutesAfterHours} minutes`,
+        'Minutes between': `${minutes} minutes, ${remainingSecondsAfterMinutes} seconds`,
+        'Detailed': `${years > 0 ? years + ' years, ' : ''}${months % 12 > 0 ? (months % 12) + ' months, ' : ''}${weeks > 0 ? weeks + ' weeks, ' : ''}${remainingDaysAfterWeeks > 0 ? remainingDaysAfterWeeks + ' days, ' : ''}${remainingHoursAfterDays} hours, ${remainingMinutesAfterHours} minutes`
+      },
+      dates: {
+        date1: date1.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+        date2: date2.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+        isDate1Earlier: date1.getTime() < date2.getTime()
+      }
+    }
+
+    return {
+      success: true,
+      result,
+      message: `⏱️ Date difference calculated: ${days} days between the dates`
+    }
+  } catch (error) {
+    throw new Error(`Date difference calculation failed: ${error.message}`)
+  }
+}
+
+export function analyzeSingleDate(dateInput) {
+  if (!dateInput || !dateInput.trim()) {
+    throw new Error('Please enter a date to analyze.')
+  }
+
+  try {
+    const date = new Date(dateInput.trim())
+    
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date format. Please enter a valid date.')
+    }
+
+    // Calculate week number in year (ISO week)
+    const startOfYear = new Date(date.getFullYear(), 0, 1)
+    const pastDaysOfYear = (date - startOfYear) / 86400000
+    const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7)
+    
+    // Calculate ISO week number (more accurate)
+    const isoWeekNumber = getISOWeekNumber(date)
+    
+    // Day of year
+    const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / (24 * 60 * 60 * 1000))
+    
+    // Quarter
+    const quarter = Math.ceil((date.getMonth() + 1) / 3)
+    
+    // Additional info
+    const dayOfWeek = date.getDay() // 0 = Sunday
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
+    const monthName = date.toLocaleDateString('en-US', { month: 'long' })
+    const isLeapYear = isLeapYearFunc(date.getFullYear())
+    const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+    const daysInYear = isLeapYear ? 366 : 365
+    
+    // Days until end of year
+    const endOfYear = new Date(date.getFullYear(), 11, 31)
+    const daysUntilEndOfYear = Math.ceil((endOfYear - date) / (24 * 60 * 60 * 1000))
+    
+    const result = {
+      basic: {
+        'Week number (simple)': weekNumber,
+        'Week number (ISO)': isoWeekNumber,
+        'Day of year': dayOfYear,
+        'Quarter': quarter
+      },
+      detailed: {
+        'Day of week': `${dayName} (${dayOfWeek})`,
+        'Month': `${monthName} (${date.getMonth() + 1})`,
+        'Year': date.getFullYear(),
+        'Is leap year': isLeapYear ? 'Yes' : 'No',
+        'Days in month': daysInMonth,
+        'Days in year': daysInYear,
+        'Days until end of year': daysUntilEndOfYear,
+        'Quarter': `Q${quarter} ${date.getFullYear()}`
+      },
+      formatted: {
+        'Week': `Week ${isoWeekNumber} of ${date.getFullYear()}`,
+        'Day': `Day ${dayOfYear} of ${daysInYear}`,
+        'Quarter': `Quarter ${quarter}, ${date.getFullYear()}`,
+        'Progress': `${Math.round((dayOfYear / daysInYear) * 100)}% through the year`
+      }
+    }
+
+    return {
+      success: true,
+      result,
+      originalDate: date,
+      message: `📊 Date analyzed: Week ${isoWeekNumber}, Day ${dayOfYear}, Q${quarter}`
+    }
+  } catch (error) {
+    throw new Error(`Date analysis failed: ${error.message}`)
+  }
+}
+
+// Helper functions
+function getISOWeekNumber(date) {
+  const target = new Date(date.valueOf())
+  const dayNr = (date.getDay() + 6) % 7
+  target.setDate(target.getDate() - dayNr + 3)
+  const firstThursday = target.valueOf()
+  target.setMonth(0, 1)
+  if (target.getDay() !== 4) {
+    target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7)
+  }
+  return 1 + Math.ceil((firstThursday - target) / 604800000) // 604800000 = 7 * 24 * 3600 * 1000
+}
+
+function isLeapYearFunc(year) {
+  return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)
+}

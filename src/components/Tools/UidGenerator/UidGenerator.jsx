@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { generateUuid, validateUuid, formatUuid, generateShortId, generateNanoid } from '../../../utils/formatters'
 import { copyToClipboard } from '../../../utils/clipboard'
+import SocialShare from '../../Layout/SocialShare'
 
 export default function UidGenerator() {
   const [input, setInput] = useState('')
@@ -488,6 +489,24 @@ export default function UidGenerator() {
           <button className="btn btn-secondary" onClick={handleClear}>
             🗑️ Clear
           </button>
+          
+          {/* Social Share Buttons - show when there's valid output */}
+          {output && !error && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              paddingLeft: '1rem',
+              marginLeft: '1rem',
+              borderLeft: '1px solid var(--border-color)'
+            }}>
+              <SocialShare 
+                text={`Generated unique IDs using work-bench.dev - a collection of 20+ developer tools! 🎲\n\n⚙️ SETTINGS:\nType: ${generatorType}\nFormat: ${formatType}${generatorType === 'short-id' ? `\nLength: ${shortIdLength}` : ''}${generatorType === 'nanoid' ? `\nLength: ${nanoidLength}` : ''}\n\n📤 COMPLETE OUTPUT:\n${output}`}
+                hashtags={['UUID', 'developer', 'tools', 'coding']}
+                size="small"
+                showLabel={true}
+              />
+            </div>
+          )}
           
           <div style={{
             marginLeft: 'auto',

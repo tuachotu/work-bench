@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { yamlToJson, xmlToJson, csvToJson } from '../../../utils/formatters'
 import { copyToClipboard } from '../../../utils/clipboard'
+import SocialShare from '../../Layout/SocialShare'
 
 export default function DataConverter() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
   const [error, setError] = useState('')
@@ -12,6 +16,17 @@ export default function DataConverter() {
     delimiter: ',',
     hasHeaders: true
   })
+
+  // Set conversion type based on route
+  useEffect(() => {
+    if (location.pathname === '/convert/csv') {
+      setConversionType('csv-to-json')
+    } else if (location.pathname === '/convert/yaml') {
+      setConversionType('yaml-to-json')  
+    } else if (location.pathname === '/convert/xml') {
+      setConversionType('xml-to-json')
+    }
+  }, [location])
 
   useEffect(() => {
     const sampleData = getSampleData(conversionType)
@@ -202,37 +217,83 @@ Diana Lee,diana@example.com,26,Boston,Data Analyst`
     }
   }
 
+  const getToolTitle = () => {
+    switch (conversionType) {
+      case 'csv-to-json': return 'CSV to JSON Converter'
+      case 'yaml-to-json': return 'YAML to JSON Converter' 
+      case 'xml-to-json': return 'XML to JSON Converter'
+      default: return 'Data Converter'
+    }
+  }
+
+  const getToolDescription = () => {
+    switch (conversionType) {
+      case 'csv-to-json': return '$ convert CSV data to structured JSON format'
+      case 'yaml-to-json': return '$ convert YAML configuration to JSON format'
+      case 'xml-to-json': return '$ convert XML markup to structured JSON'
+      default: return '$ convert data formats to JSON'
+    }
+  }
+
   return (
     <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column'
+      padding: '3rem 2rem',
+      maxWidth: '1400px',
+      margin: '0 auto',
+      width: '100%'
     }}>
+      {/* Header with Back Button */}
       <div style={{
-        background: 'var(--bg-secondary)',
-        borderBottom: '1px solid var(--border-color)',
-        padding: '1rem',
+        marginBottom: '3rem',
         textAlign: 'center'
       }}>
-        <h1 style={{
-          fontSize: '1.5rem',
-          fontWeight: 700,
-          color: 'var(--text-primary)',
-          margin: 0,
-          fontFamily: 'var(--font-mono)'
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1.5rem',
+          marginBottom: '1rem'
         }}>
-          Data Converter
-        </h1>
+          <button 
+            className="btn btn-secondary"
+            onClick={() => navigate('/')}
+            style={{ 
+              padding: '0.5rem 1rem',
+              fontSize: '1rem',
+              position: 'absolute',
+              left: '2rem'
+            }}
+          >
+            ← back
+          </button>
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: 'var(--text-primary)',
+            fontFamily: 'var(--font-mono)',
+            margin: 0
+          }}>
+            🔄 {getToolTitle()}
+          </h1>
+        </div>
         <p style={{
-          fontSize: '0.875rem',
+          fontSize: '1.25rem',
           color: 'var(--text-secondary)',
-          margin: '0.5rem 0 0 0',
+          lineHeight: 1.5,
           fontFamily: 'var(--font-mono)'
         }}>
-          Convert YAML, XML, and CSV data to JSON format
+          {getToolDescription()}
         </p>
       </div>
 
+      <div style={{
+        height: 'calc(100vh - 250px)',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'var(--bg-primary)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '8px'
+      }}>
       <div style={{
         display: 'flex',
         flex: 1,
@@ -452,6 +513,24 @@ Diana Lee,diana@example.com,26,Boston,Data Analyst`
             🗑️ Clear
           </button>
           
+          {/* Social Share Buttons - show when there's valid output */}
+          {output && !error && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              paddingLeft: '1rem',
+              marginLeft: '1rem',
+              borderLeft: '1px solid var(--border-color)'
+            }}>
+              <SocialShare 
+                text={`Converted data formats using work-bench.dev - a collection of 20+ developer tools! 🔄\n\n📥 INPUT (${conversionType.split('-')[0].toUpperCase()}):\n${input}\n\n📤 OUTPUT (JSON):\n${output}`}
+                hashtags={['dataconversion', 'developer', 'tools', 'JSON']}
+                size="small"
+                showLabel={true}
+              />
+            </div>
+          )}
+          
           <div style={{
             marginLeft: 'auto',
             fontSize: '0.75rem',
@@ -461,12 +540,23 @@ Diana Lee,diana@example.com,26,Boston,Data Analyst`
           </div>
         </div>
       </div>
+    </div>
 
       {successMessage && (
         <div className={`success-message ${successMessage ? 'visible' : ''}`}>
           {successMessage}
         </div>
       )}
+
+      {/* Mobile responsive styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          button[style*="position: absolute"] {
+            position: static !important;
+            margin-bottom: 1rem !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { formatJson, minifyJson, validateJson } from '../../../utils/formatters'
 import { copyToClipboard } from '../../../utils/clipboard'
+import SocialShare from '../../Layout/SocialShare'
 
 export default function JsonFormatter() {
   const [input, setInput] = useState('')
@@ -252,6 +253,24 @@ export default function JsonFormatter() {
         <button className="btn btn-secondary" onClick={handleValidate}>
           ✅ Validate
         </button>
+        
+        {/* Social Share Buttons - show when there's valid output */}
+        {output && !error && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            paddingLeft: '1rem',
+            marginLeft: '1rem',
+            borderLeft: '1px solid var(--border-color)'
+          }}>
+            <SocialShare 
+              text={`Just formatted JSON with this amazing free tool! 🎯\n\n📥 INPUT:\n${input}\n\n📤 OUTPUT:\n${output}`}
+              hashtags={['JSON', 'developer', 'tools', 'formatting']}
+              size="small"
+              showLabel={true}
+            />
+          </div>
+        )}
         
         <div style={{
           marginLeft: 'auto',

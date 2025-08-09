@@ -1,22 +1,111 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
+import SocialShare from '../../Layout/SocialShare'
 
 const MAJOR_ZONES = [
-  { name: 'Singapore', flag: '🇸🇬', zone: 'Asia/Singapore' },
-  { name: 'India', flag: '🇮🇳', zone: 'Asia/Kolkata' },
-  { name: 'Australia', flag: '🇦🇺', zone: 'Australia/Sydney' },
-  { name: 'UK', flag: '🇬🇧', zone: 'Europe/London' },
+  // Universal/GMT
+  { name: 'UTC', flag: '🌍', zone: 'UTC' },
+  { name: 'GMT', flag: '🇬🇧', zone: 'GMT' },
+  
+  // Americas
   { name: 'US East', flag: '🇺🇸', zone: 'America/New_York' },
   { name: 'US Central', flag: '🇺🇸', zone: 'America/Chicago' },
-  { name: 'US West', flag: '🇺🇸', zone: 'America/Los_Angeles' }
+  { name: 'US Mountain', flag: '🇺🇸', zone: 'America/Denver' },
+  { name: 'US West', flag: '🇺🇸', zone: 'America/Los_Angeles' },
+  { name: 'US Alaska', flag: '🇺🇸', zone: 'America/Anchorage' },
+  { name: 'US Hawaii', flag: '🇺🇸', zone: 'Pacific/Honolulu' },
+  { name: 'Canada East', flag: '🇨🇦', zone: 'America/Toronto' },
+  { name: 'Canada West', flag: '🇨🇦', zone: 'America/Vancouver' },
+  { name: 'Brazil', flag: '🇧🇷', zone: 'America/Sao_Paulo' },
+  { name: 'Argentina', flag: '🇦🇷', zone: 'America/Argentina/Buenos_Aires' },
+  { name: 'Chile', flag: '🇨🇱', zone: 'America/Santiago' },
+  { name: 'Mexico', flag: '🇲🇽', zone: 'America/Mexico_City' },
+  
+  // Europe
+  { name: 'UK', flag: '🇬🇧', zone: 'Europe/London' },
+  { name: 'Ireland', flag: '🇮🇪', zone: 'Europe/Dublin' },
+  { name: 'France', flag: '🇫🇷', zone: 'Europe/Paris' },
+  { name: 'Germany', flag: '🇩🇪', zone: 'Europe/Berlin' },
+  { name: 'Italy', flag: '🇮🇹', zone: 'Europe/Rome' },
+  { name: 'Spain', flag: '🇪🇸', zone: 'Europe/Madrid' },
+  { name: 'Netherlands', flag: '🇳🇱', zone: 'Europe/Amsterdam' },
+  { name: 'Poland', flag: '🇵🇱', zone: 'Europe/Warsaw' },
+  { name: 'Sweden', flag: '🇸🇪', zone: 'Europe/Stockholm' },
+  { name: 'Norway', flag: '🇳🇴', zone: 'Europe/Oslo' },
+  { name: 'Switzerland', flag: '🇨🇭', zone: 'Europe/Zurich' },
+  { name: 'Austria', flag: '🇦🇹', zone: 'Europe/Vienna' },
+  { name: 'Greece', flag: '🇬🇷', zone: 'Europe/Athens' },
+  { name: 'Turkey', flag: '🇹🇷', zone: 'Europe/Istanbul' },
+  { name: 'Russia Moscow', flag: '🇷🇺', zone: 'Europe/Moscow' },
+  
+  // Asia
+  { name: 'China', flag: '🇨🇳', zone: 'Asia/Shanghai' },
+  { name: 'Japan', flag: '🇯🇵', zone: 'Asia/Tokyo' },
+  { name: 'South Korea', flag: '🇰🇷', zone: 'Asia/Seoul' },
+  { name: 'India', flag: '🇮🇳', zone: 'Asia/Kolkata' },
+  { name: 'Singapore', flag: '🇸🇬', zone: 'Asia/Singapore' },
+  { name: 'Hong Kong', flag: '🇭🇰', zone: 'Asia/Hong_Kong' },
+  { name: 'Taiwan', flag: '🇹🇼', zone: 'Asia/Taipei' },
+  { name: 'Thailand', flag: '🇹🇭', zone: 'Asia/Bangkok' },
+  { name: 'Malaysia', flag: '🇲🇾', zone: 'Asia/Kuala_Lumpur' },
+  { name: 'Indonesia', flag: '🇮🇩', zone: 'Asia/Jakarta' },
+  { name: 'Philippines', flag: '🇵🇭', zone: 'Asia/Manila' },
+  { name: 'Vietnam', flag: '🇻🇳', zone: 'Asia/Ho_Chi_Minh' },
+  { name: 'UAE', flag: '🇦🇪', zone: 'Asia/Dubai' },
+  { name: 'Saudi Arabia', flag: '🇸🇦', zone: 'Asia/Riyadh' },
+  { name: 'Israel', flag: '🇮🇱', zone: 'Asia/Jerusalem' },
+  { name: 'Pakistan', flag: '🇵🇰', zone: 'Asia/Karachi' },
+  { name: 'Bangladesh', flag: '🇧🇩', zone: 'Asia/Dhaka' },
+  { name: 'Sri Lanka', flag: '🇱🇰', zone: 'Asia/Colombo' },
+  
+  // Oceania
+  { name: 'Australia East', flag: '🇦🇺', zone: 'Australia/Sydney' },
+  { name: 'Australia Central', flag: '🇦🇺', zone: 'Australia/Adelaide' },
+  { name: 'Australia West', flag: '🇦🇺', zone: 'Australia/Perth' },
+  { name: 'New Zealand', flag: '🇳🇿', zone: 'Pacific/Auckland' },
+  
+  // Africa
+  { name: 'South Africa', flag: '🇿🇦', zone: 'Africa/Johannesburg' },
+  { name: 'Egypt', flag: '🇪🇬', zone: 'Africa/Cairo' },
+  { name: 'Kenya', flag: '🇰🇪', zone: 'Africa/Nairobi' },
+  { name: 'Nigeria', flag: '🇳🇬', zone: 'Africa/Lagos' },
+  { name: 'Morocco', flag: '🇲🇦', zone: 'Africa/Casablanca' }
+]
+
+// Create grouped zones for better organization
+const GROUPED_ZONES = [
+  {
+    region: 'Universal',
+    zones: MAJOR_ZONES.filter(z => z.zone === 'UTC' || z.zone === 'GMT')
+  },
+  {
+    region: 'Americas',
+    zones: MAJOR_ZONES.filter(z => z.zone.startsWith('America/') || z.zone.startsWith('Pacific/Honolulu'))
+  },
+  {
+    region: 'Europe',
+    zones: MAJOR_ZONES.filter(z => z.zone.startsWith('Europe/'))
+  },
+  {
+    region: 'Asia',
+    zones: MAJOR_ZONES.filter(z => z.zone.startsWith('Asia/'))
+  },
+  {
+    region: 'Oceania',
+    zones: MAJOR_ZONES.filter(z => z.zone.startsWith('Australia/') || z.zone.startsWith('Pacific/Auckland'))
+  },
+  {
+    region: 'Africa',
+    zones: MAJOR_ZONES.filter(z => z.zone.startsWith('Africa/'))
+  }
 ]
 
 export default function TimezoneConverter() {
   const navigate = useNavigate()
   const [currentTime, setCurrentTime] = useState(DateTime.now())
   const [inputTime, setInputTime] = useState('')
-  const [selectedZone, setSelectedZone] = useState('America/New_York')
+  const [selectedZone, setSelectedZone] = useState('UTC')
   const [convertedTimes, setConvertedTimes] = useState([])
 
   useEffect(() => {
@@ -311,10 +400,14 @@ export default function TimezoneConverter() {
                     fontSize: '1rem'
                   }}
                 >
-                  {MAJOR_ZONES.map((zone, index) => (
-                    <option key={index} value={zone.zone}>
-                      {zone.flag} {zone.name}
-                    </option>
+                  {GROUPED_ZONES.map((group) => (
+                    <optgroup key={group.region} label={group.region}>
+                      {group.zones.map((zone, index) => (
+                        <option key={`${group.region}-${index}`} value={zone.zone}>
+                          {zone.flag} {zone.name}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>
@@ -323,14 +416,28 @@ export default function TimezoneConverter() {
 
           {convertedTimes.length > 0 && (
             <div>
-              <h3 style={{
-                fontSize: '1.2rem',
-                color: 'var(--text-primary)',
-                fontFamily: 'var(--font-mono)',
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
                 marginBottom: '1rem'
               }}>
-                → Converted Times
-              </h3>
+                <h3 style={{
+                  fontSize: '1.2rem',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-mono)',
+                  margin: 0
+                }}>
+                  → Converted Times
+                </h3>
+                
+                <SocialShare 
+                  text={`Converted time across multiple timezones using work-bench.dev - a collection of 20+ developer tools! 🌍\n\n📥 INPUT:\nTime: ${inputTime}\nFrom: ${MAJOR_ZONES.find(z => z.zone === selectedZone)?.name} (${selectedZone})\n\n📤 CONVERTED TO ALL ZONES:\n${convertedTimes.map(zone => `${zone.name}: ${zone.time}`).join('\n')}`}
+                  hashtags={['timezone', 'developer', 'tools', 'time']}
+                  size="small"
+                  showLabel={false}
+                />
+              </div>
               
               <div style={{
                 fontFamily: 'var(--font-mono)',

@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout/Layout'
 import HomePage from './components/Home/HomePage'
+import ToolNotebook from './components/Tools/Notebook/ToolNotebook'
 import JsonFormatter from './components/Tools/JsonFormatter/JsonFormatter'
 import TimezoneConverter from './components/Tools/TimezoneConverter/TimezoneConverter'
 import EpochConverter from './components/Tools/EpochConverter/EpochConverter'
@@ -11,6 +12,7 @@ import ListUnique from './components/Tools/ListUnique/ListUnique'
 import UidGenerator from './components/Tools/UidGenerator/UidGenerator'
 import StringOperations from './components/Tools/StringOperations/StringOperations'
 import DataConverter from './components/Tools/DataConverter/DataConverter'
+import DateConverter from './components/Tools/DateConverter/DateConverter'
 import FindPixel from './components/Tools/FindPixel/FindPixel'
 import TextProcessing from './components/Tools/TextProcessing/TextProcessing'
 import PacmanGame from './components/Games/PacmanGame'
@@ -23,6 +25,9 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        
+        {/* Notebook */}
+        <Route path="/notebook" element={<ToolNotebook />} />
         
         {/* Formatters */}
         <Route path="/json" element={<JsonFormatter />} />
@@ -59,6 +64,7 @@ function App() {
         {/* Time */}
         <Route path="/time/zone" element={<TimezoneConverter />} />
         <Route path="/time/epoch" element={<EpochConverter />} />
+        <Route path="/time/date" element={<DateConverter />} />
         
         {/* Images */}
         <Route path="/images/find-pixel" element={<FindPixel />} />

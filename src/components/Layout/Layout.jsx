@@ -10,6 +10,9 @@ export default function Layout({ children }) {
 
   function getPageTitle(pathname) {
     const routes = {
+      // Notebook
+      '/notebook': 'tool notebook',
+      
       // Formatters
       '/json': 'json formatter',
       '/yaml': 'yaml formatter', 
